@@ -1,36 +1,37 @@
-name: Generate and Deploy RSS Feed
+name: 澳门天气预警RSS自动生成
 
+# 触发条件：每15分钟自动运行 + 允许手动触发
 on:
   schedule:
-    - cron: '*/10 * * * *'  # 每10分钟运行一次
-  workflow_dispatch:        # 允许手动触发
+    - cron: '*/15 * * * *'  # 每15分钟执行一次
+  workflow_dispatch:        # 手动触发按钮
 
 jobs:
-  build:
-    runs-on: ubuntu-latest
+  generate-rss:
+    runs-on: ubuntu-latest  # 使用GitHub提供的云端虚拟机
+    
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v3
-
-      - name: Set up Python
-        uses: actions/setup-python@v4
+      - name: 拉取仓库代码
+        uses: actions/checkout@v4  # 最新版checkout工具
+      
+      - name: 设置Python环境
+        uses: actions/setup-python@v5  # 云端配置Python
         with:
-          python-version: '3.x'
-
-      - name: Install dependencies
+          python-version: '3.11'  # 指定Python版本
+      
+      - name: 安装依赖库
         run: |
-          pip install -r requirements.txt  # 从依赖文件安装，确保完整性
-
-      - name: Generate RSS
-        run: |
-          python generate_rss.py  # 执行正确的脚本名称
-
-      - name: Push RSS to gh-pages branch
-        run: |
-          git config user.name "github-actions"
-          git config user.email "github-actions@github.com"
-          git checkout -B gh-pages  # 切换到gh-pages分支
-          git pull origin gh-pages --rebase  # 拉取最新内容，避免冲突
-          git add output/rss.xml  # 关键：添加output目录下的文件
-          git commit -m "Update RSS at $(date +'%Y-%m-%d %H:%M:%S')"  # 带时间戳的提交信息
-          git push -f origin gh-pages
+          python -m pip install --upgrade pip
+          pip install feedgen beautifulsoup4 requests
+      
+      - name: 运行RSS生成脚本
+        run: python generate_rss.py
+      
+      - name: 部署到gh-pages分支
+        uses: peaceiris/actions-gh-pages@v4  # 专业部署工具
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}  # 自动生成的安全令牌
+          publish_dir: ./output  # 只部署output目录
+          force_orphan: true  # 保持分支干净
+          commit_message: "自动更新天气预警RSS: ${{ github.sha }}"
+    
