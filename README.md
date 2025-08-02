@@ -4,7 +4,7 @@
 
 ## 订阅地址
 生成的RSS地址：
-`https://<你的GitHub用户名>.github.io/<你的仓库名>/rss.xml`
+`https://<你的用户名>.github.io/<你的仓库名>/output/rss.xml`
 
 ## 功能特点
 - 每15分钟自动更新一次
