@@ -19,7 +19,7 @@ jobs:
 
       - name: Install dependencies
         run: |
-          pip install -r requirements.txt  # 从requirements安装所有依赖
+          pip install -r requirements.txt  # 从依赖文件安装，确保完整性
 
       - name: Generate RSS
         run: |
@@ -29,8 +29,8 @@ jobs:
         run: |
           git config user.name "github-actions"
           git config user.email "github-actions@github.com"
-          git checkout -B gh-pages  # 创建/切换到gh-pages分支
+          git checkout -B gh-pages  # 切换到gh-pages分支
           git pull origin gh-pages --rebase  # 拉取最新内容，避免冲突
-          git add output/rss.xml  # 添加生成的RSS文件（注意路径）
-          git commit -m "Update RSS at $(date +'%Y-%m-%d %H:%M:%S')"  # 带时间的提交信息
+          git add output/rss.xml  # 关键：添加output目录下的文件
+          git commit -m "Update RSS at $(date +'%Y-%m-%d %H:%M:%S')"  # 带时间戳的提交信息
           git push -f origin gh-pages
