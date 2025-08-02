@@ -60,4 +60,12 @@ else:
 fg.rss_file('output/rss.xml', pretty=True)
 print("RSS文件生成成功")
 os.makedirs('output', exist_ok=True) 和 fg.rss_file('output/rss.xml') 生成文件到 output
+import os
+from feedgen.feed import FeedGenerator
+# 必须有这行，确保 output 目录创建
+os.makedirs('output', exist_ok=True)  
+fg = FeedGenerator()
+# ...（其他配置）...
+# 必须输出到 output 目录
+fg.rss_file('output/rss.xml')  
     
