@@ -2,24 +2,33 @@ name: Generate RSS Feed
 
 on:
   schedule:
-    - cron: '*/10 * * * *'  # 每10分钟执行一次
-  workflow_dispatch:
+    - cron: "*/10 * * * *"  # 每10分钟运行一次
+  workflow_dispatch:        # 允许手动运行
 
 jobs:
   build:
     runs-on: ubuntu-latest
+
     steps:
-      - uses: actions/checkout@v3
-      - uses: actions/setup-python@v4
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
         with:
           python-version: '3.x'
-      - run: pip install -r requirements.txt
-      - run: python generate_rss.py
-      - run: |
-          git config user.name "github-actions"
-          git config user.email "github-actions@github.com"
-          git checkout -B gh-pages
-          git add rss.xml
-          git commit -m "Update RSS"
-          git push -f origin gh-pages
 
+      - name: Install dependencies
+        run: pip install requests beautifulsoup4
+
+      - name: Run Python script
+        run: |
+          mkdir -p output
+          python macau_weather_rss.py  # 如果你的脚本不是这个名字，请替换
+
+      - name: Deploy to gh-pages
+        uses: peaceiris/actions-gh-pages@v3
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./output
+          publish_branch: gh-pages
