@@ -1,0 +1,34 @@
+name: Generate RSS Feed
+
+on:
+  schedule:
+    - cron: '*/10 * * * *'  # 每10分钟触发（可根据需求调整）
+  workflow_dispatch:        # 允许手动触发
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: 拉取代码
+        uses: actions/checkout@v4
+
+      - name: 配置Python环境
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: 安装依赖
+        run: pip install -r requirements.txt
+
+      - name: 运行脚本生成文件
+        run: python generate_rss.py  # 执行脚本，生成 output/rss.xml
+
+      - name: 提交生成的文件到 gh-pages 分支
+        run: |
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git checkout gh-pages  # 切换到 gh-pages 分支
+          git pull origin gh-pages --rebase  # 拉取最新内容
+          git add output/  # 添加 output 目录（含生成的 rss.xml）
+          git commit -m "Auto update RSS at $(date +'%Y-%m-%d %H:%M:%S')"
+          git push origin gh-pages  # 推送到 gh-pages 分支
